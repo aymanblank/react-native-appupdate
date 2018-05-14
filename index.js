@@ -40,7 +40,7 @@ class AppUpdate {
 
   getApkVersionSuccess(remote) {
     console.log("getApkVersionSuccess", remote);
-    if (RNAppUpdate.versionName !== remote.androidVersion.version) {
+    if (RNAppUpdate.versionCode < parseInt(remote.androidVersion.version)) {
       if (this.options.needUpdateApp) {
         this.options.needUpdateApp((isUpdate) => {
           if (isUpdate) {
@@ -62,7 +62,8 @@ class AppUpdate {
       console.log("iosAppId doesn't exist.");
       return;
     }
-    this.GET(`https://itunes.apple.com/search?term=${this.options.iosAppId}&country=${this.options.location}jo&entity=software`, this.getAppStoreVersionSuccess.bind(this), this.getVersionError.bind(this));
+    //this.GET(`https://itunes.apple.com/search?term=${this.options.iosAppId}&country=${this.options.location}jo&entity=software`, this.getAppStoreVersionSuccess.bind(this), this.getVersionError.bind(this));
+    this.GET(this.options.iosVersionUrl, this.getAppStoreVersionSuccess.bind(this), this.getVersionError.bind(this));
   }
 
   getAppStoreVersionSuccess(data) {
@@ -70,14 +71,15 @@ class AppUpdate {
       console.log("iosAppId is wrong.");
       return;
     }
-    const result = data.results[0];
-    const version = result.version;
-    const trackViewUrl = result.trackViewUrl;
-    if (version !== RNAppUpdate.versionName) {
+    const result = data;
+    const version = parseInt(result.iosVersion.version);
+    
+    if (version > RNAppUpdate.versionCode) {
       if (this.options.needUpdateApp) {
         this.options.needUpdateApp((isUpdate) => {
           if (isUpdate) {
-            RNAppUpdate.installFromAppStore(trackViewUrl);
+            //RNAppUpdate.installFromAppStore(trackViewUrl);
+            Linking.openURL('https://itunes.apple.com/us/app/goboz-movies-tv-shows/id1145295087?ls=1&mt=8');
           }
         });
       }
